@@ -182,7 +182,7 @@ function buildCountryList(articles) {
 function applyFilters() {
   let list = ALL;
   if (CAT !== 'all') list = list.filter(a => catOf(a).key === CAT);
-  if (COUNTRY)       list = list.filter(a => _extractCountry(a) === COUNTRY);
+  if (COUNTRY)       list = list.filter(a => (a.country || _extractCountry(a) || '') === COUNTRY);
   if (Q) {
     const q = Q.toLowerCase();
     list = list.filter(a =>
@@ -612,6 +612,69 @@ $('nav-list').addEventListener('click', e => {
   applyFilters();
   if (window.innerWidth <= 900) closeSidebar();
 });
+
+// ── World country dropdown ────────────────────────────────────
+(function initWorldDropdown() {
+  const worldBtn = document.querySelector('.nav-btn[data-cat="world"]');
+  if (!worldBtn) return;
+
+  // Create floating panel attached to body
+  const panel = document.createElement('div');
+  panel.id = 'world-dropdown';
+  panel.className = 'world-dropdown';
+  document.body.appendChild(panel);
+
+  let hideTimer;
+
+  function buildPanel() {
+    const counts = {};
+    ALL.forEach(a => {
+      const c = (a.country || _extractCountry(a) || '').trim();
+      if (c) counts[c] = (counts[c] || 0) + 1;
+    });
+    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (!sorted.length) {
+      panel.innerHTML = '<div class="wd-empty">No country data yet</div>';
+      return;
+    }
+    panel.innerHTML = sorted.map(([c, n]) => `
+      <button class="wd-chip${COUNTRY === c ? ' active' : ''}" data-country="${esc(c)}">
+        <span class="wd-name">${esc(c)}</span>
+        <span class="wd-count">${n}</span>
+      </button>`).join('');
+
+    panel.querySelectorAll('.wd-chip').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const val = btn.dataset.country;
+        COUNTRY = COUNTRY === val ? null : val;
+        // Switch to All Stories so country filter applies across categories
+        document.querySelectorAll('#nav-list .nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-cat="all"]').classList.add('active');
+        CAT = 'all';
+        applyFilters();
+        hidePanel();
+      });
+    });
+  }
+
+  function showPanel() {
+    clearTimeout(hideTimer);
+    const r = worldBtn.getBoundingClientRect();
+    panel.style.top  = r.top + 'px';
+    panel.style.left = (r.right + 10) + 'px';
+    buildPanel();
+    panel.classList.add('visible');
+  }
+  function hidePanel() {
+    hideTimer = setTimeout(() => panel.classList.remove('visible'), 180);
+  }
+
+  worldBtn.addEventListener('mouseenter', showPanel);
+  worldBtn.addEventListener('mouseleave', hidePanel);
+  panel.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+  panel.addEventListener('mouseleave', hidePanel);
+})();
 
 // Sidebar mobile
 function openSidebar()  { sidebar.classList.add('open');    sbBackdrop.classList.add('open');    document.body.style.overflow = 'hidden'; }
