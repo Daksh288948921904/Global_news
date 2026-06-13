@@ -645,6 +645,13 @@ async function fetchLeadStory() {
     LEAD_STORY_ARTICLE    = a || null;
     LEAD_STORY_ARTICLE_ID = a ? a.id : null;
 
+    // Show or hide the hero section
+    const hero = $('lead-story-hero');
+    if (hero) {
+      if (a) { renderLeadStoryHero(a); hero.classList.remove('hidden'); }
+      else    { hero.classList.add('hidden'); }
+    }
+
     // Sync is_lead_story flags into ALL array and re-render feed if anything changed
     let changed = false;
     ALL.forEach(art => {
@@ -665,17 +672,18 @@ function renderLeadStoryHero(a) {
   if (!hero) return;
   const cat = catOf(a);
   hero.onclick = () => openReader(a.id);
-  $('lsh-category').innerHTML  = `<span class="${cat.cls}">${cat.key}</span>`;
+  $('lsh-category').innerHTML  = `<span class="card-cat-badge ${cat.cls}">${cat.key}</span>`;
   $('lsh-title').textContent   = a.heading || '';
-  $('lsh-subtitle').textContent = a.sub_heading || '';
-  $('lsh-meta').textContent    = `${relTime(a.published_at || a.created_at)} · ${rt(wc(a))} read`;
-  const imgEl = $('lsh-image');
-  imgEl.innerHTML = a.image_url
+  const sub = a.sub_heading || '';
+  const subtitleEl = $('lsh-subtitle');
+  subtitleEl.textContent  = sub;
+  subtitleEl.style.display = sub ? '' : 'none';
+  $('lsh-meta').textContent = `${relTime(a.published_at || a.created_at)} · ${rt(wc(a))} read`;
+  $('lsh-image').innerHTML  = a.image_url
     ? `<img src="${esc(a.image_url)}" alt="" loading="lazy">`
     : `<div class="lsh-img-placeholder">📰</div>`;
   const readBtn = $('lsh-read-btn');
   if (readBtn) readBtn.onclick = e => { e.stopPropagation(); openReader(a.id); };
-  hero.style.display = '';
 }
 
 // ── Init ──────────────────────────────────────────────────────
