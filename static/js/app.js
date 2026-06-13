@@ -81,6 +81,11 @@ function stagger(el, i) {
   el.style.animationDelay = `${Math.min(i * 35, 350)}ms`;
 }
 
+function hexRgba(hex, a) {
+  const n = parseInt(hex.replace('#',''), 16);
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+}
+
 // ── Ticker ────────────────────────────────────────────────────
 function buildTicker(articles) {
   if (!articles.length) return;
@@ -259,6 +264,8 @@ function cardHTML(a, i) {
       </div>`;
   }
 
+  const sub = (a.sub_heading || '').trim();
+
   return `<article class="card${isHero ? ' card-hero' : ''}" data-cat="${cat.key}" onclick="openReader('${esc(a.id)}')">
     ${media}
     <div class="card-badges">
@@ -267,6 +274,7 @@ function cardHTML(a, i) {
       <span class="card-rt-badge">${rt(words)}</span>
     </div>
     ${a.is_lead_story ? `<span class="card-featured-label">Lead Story</span>` : ''}
+    ${sub ? `<div class="card-hover-sub" style="background:linear-gradient(to top,${hexRgba(c1,.42)} 0%,${hexRgba(c1,.22)} 55%,transparent 100%);border-top:1px solid ${hexRgba(c1,.32)}">${esc(sub)}</div>` : ''}
     <div class="card-info">
       <div class="card-source-row">
         <span class="card-source-dot"></span>
