@@ -88,7 +88,7 @@ function hexRgba(hex, a) {
 
 // ── Ticker ────────────────────────────────────────────────────
 function buildTicker(articles) {
-  if (!articles.length) return;
+  if (!articles.length || !tickerContent) return;
   const sep   = `<span class="ticker-sep">◆</span>`;
   const inner = articles.slice(0, 14).map(a => `<span>${esc(a.heading || '')}</span>`).join(sep);
   tickerContent.innerHTML = inner + sep + inner;
