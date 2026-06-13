@@ -12,7 +12,9 @@ let SORT    = 'new';
 let VIEW    = 'grid';
 let READER_OPEN        = false;
 let CURRENT_ARTICLE    = null;  // full article object
-let CURRENT_ARTICLE_ID = null;  // UUID
+let CURRENT_ARTICLE_ID    = null;  // UUID
+let LEAD_STORY_ARTICLE    = null;
+let LEAD_STORY_ARTICLE_ID = null;
 
 // ── DOM ───────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -627,5 +629,39 @@ document.addEventListener('keydown', e => {
 // ── Auto-refresh every 5 minutes ─────────────────────────────
 setInterval(() => loadArticles(true), 5 * 60 * 1000);
 
+// ── Lead Story Hero ───────────────────────────────────────────
+async function fetchLeadStory() {
+  try {
+    const data = await fetch('/api/lead-story').then(r => r.json());
+    const a    = data.article;
+    const hero = $('lead-story-hero');
+    if (!hero) return;
+    if (!a) { hero.style.display = 'none'; LEAD_STORY_ARTICLE = null; LEAD_STORY_ARTICLE_ID = null; return; }
+    LEAD_STORY_ARTICLE    = a;
+    LEAD_STORY_ARTICLE_ID = a.id;
+    renderLeadStoryHero(a);
+  } catch(e) { /* silent — hero stays hidden */ }
+}
+
+function renderLeadStoryHero(a) {
+  const hero = $('lead-story-hero');
+  if (!hero) return;
+  const cat = catOf(a);
+  hero.onclick = () => openReader(a.id);
+  $('lsh-category').innerHTML  = `<span class="${cat.cls}">${cat.key}</span>`;
+  $('lsh-title').textContent   = a.heading || '';
+  $('lsh-subtitle').textContent = a.sub_heading || '';
+  $('lsh-meta').textContent    = `${relTime(a.published_at || a.created_at)} · ${rt(wc(a))} read`;
+  const imgEl = $('lsh-image');
+  imgEl.innerHTML = a.image_url
+    ? `<img src="${esc(a.image_url)}" alt="" loading="lazy">`
+    : `<div class="lsh-img-placeholder">📰</div>`;
+  const readBtn = $('lsh-read-btn');
+  if (readBtn) readBtn.onclick = e => { e.stopPropagation(); openReader(a.id); };
+  hero.style.display = '';
+}
+
 // ── Init ──────────────────────────────────────────────────────
 loadArticles(false);
+fetchLeadStory();
+setInterval(fetchLeadStory, 60000);

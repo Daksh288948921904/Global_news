@@ -13,6 +13,15 @@ ALTER TABLE published_articles
   ADD COLUMN IF NOT EXISTS word_count   INTEGER DEFAULT 0,
   ADD COLUMN IF NOT EXISTS tags         JSONB DEFAULT '[]'::jsonb;
 
+-- Lead story support
+ALTER TABLE published_articles
+  ADD COLUMN IF NOT EXISTS is_lead_story BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS server_idx    INTEGER;
+
+CREATE INDEX IF NOT EXISTS idx_published_articles_lead_story
+  ON published_articles (is_lead_story)
+  WHERE is_lead_story = TRUE;
+
 -- Index for fast latest-first queries (if not already there)
 CREATE INDEX IF NOT EXISTS idx_published_articles_published_at
   ON published_articles (published_at DESC);

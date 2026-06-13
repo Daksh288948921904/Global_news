@@ -188,7 +188,8 @@ async def ingest_article(request: Request):
             'hocalwire_id': body.get('hocalwire_id') or body.get('feed_id') or '',
             'word_count':   body.get('word_count') or len(story_text.split()),
             'tags':         body.get('tags') or [],
-            'article_id':   str(body.get('server_idx') or body.get('article_id') or ''),
+            'server_idx':    int(body['server_idx']) if str(body.get('server_idx', '')).isdigit() else None,
+            'is_lead_story': False,
         }
         resp = supabase.table('published_articles').insert(article).execute()
         new_id = resp.data[0]['id'] if resp.data else None
@@ -220,6 +221,51 @@ async def news_check(article_id: str):
         raise
     except Exception as e:
         logger.error('news_check error: %s', e)
+        return JSONResponse({'status': 'error', 'message': str(e)}, status_code=500)
+
+
+# ── Lead Story endpoints ───────────────────────────────────────
+@app.post('/api/lead-story')
+async def set_lead_story(request: Request):
+    api_key = request.headers.get('X-API-Key') or ''
+    if api_key != INGEST_API_KEY:
+        raise HTTPException(status_code=401, detail='Invalid API key')
+    if not supabase:
+        return JSONResponse({'status': 'error', 'message': 'Database not configured'}, status_code=503)
+    try:
+        body       = await request.json()
+        server_idx = body.get('server_idx')
+        supabase.table('published_articles') \
+            .update({'is_lead_story': False}) \
+            .neq('id', '00000000-0000-0000-0000-000000000000') \
+            .execute()
+        if server_idx is not None:
+            supabase.table('published_articles') \
+                .update({'is_lead_story': True}) \
+                .eq('server_idx', int(server_idx)) \
+                .execute()
+            logger.info('Lead story set: server_idx=%s', server_idx)
+        return {'status': 'success'}
+    except Exception as e:
+        logger.error('set_lead_story error: %s', e)
+        return JSONResponse({'status': 'error', 'message': str(e)}, status_code=500)
+
+
+@app.get('/api/lead-story')
+async def get_lead_story():
+    if not supabase:
+        return JSONResponse({'status': 'error', 'message': 'Database not configured'}, status_code=503)
+    try:
+        resp = (
+            supabase.table('published_articles')
+            .select('*')
+            .eq('is_lead_story', True)
+            .limit(1)
+            .execute()
+        )
+        return {'status': 'success', 'article': resp.data[0] if resp.data else None}
+    except Exception as e:
+        logger.error('get_lead_story error: %s', e)
         return JSONResponse({'status': 'error', 'message': str(e)}, status_code=500)
 
 
