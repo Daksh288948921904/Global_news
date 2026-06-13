@@ -250,30 +250,53 @@ async def set_lead_story(request: Request):
     if not supabase:
         return JSONResponse({'status': 'error', 'message': 'Database not configured'}, status_code=503)
     try:
-        body       = await request.json()
-        server_idx = body.get('server_idx')
+        body           = await request.json()
+        server_idx     = body.get('server_idx')
+        heading        = (body.get('heading') or '').strip()
+        global_news_id = (body.get('global_news_id') or '').strip()
+
+        # Clear all existing lead stories
         supabase.table('published_articles') \
             .update({'is_lead_story': False}) \
             .neq('id', '00000000-0000-0000-0000-000000000000') \
             .execute()
-        if server_idx is not None:
-            result = supabase.table('published_articles') \
+
+        if server_idx is None:
+            return {'status': 'success'}   # clear-only call
+
+        matched_id = None
+
+        # 1. Try by exact UUID (most reliable — stored at publish time)
+        if global_news_id:
+            resp = supabase.table('published_articles').select('id') \
+                .eq('id', global_news_id).limit(1).execute()
+            if resp.data:
+                matched_id = resp.data[0]['id']
+
+        # 2. Try by server_idx (works for articles published after schema migration)
+        if not matched_id and server_idx is not None:
+            resp = supabase.table('published_articles').select('id') \
+                .eq('server_idx', int(server_idx)).limit(1).execute()
+            if resp.data:
+                matched_id = resp.data[0]['id']
+
+        # 3. Fallback: exact heading match (same session, heading is the generated title)
+        if not matched_id and heading:
+            resp = supabase.table('published_articles').select('id') \
+                .eq('heading', heading).order('published_at', desc=True).limit(1).execute()
+            if resp.data:
+                matched_id = resp.data[0]['id']
+
+        if matched_id:
+            supabase.table('published_articles') \
                 .update({'is_lead_story': True}) \
-                .eq('server_idx', int(server_idx)) \
+                .eq('id', matched_id) \
                 .execute()
-            # Fallback: match by heading if server_idx found nothing
-            if not (result.data):
-                heading = body.get('heading', '').strip()
-                if heading:
-                    supabase.table('published_articles') \
-                        .update({'is_lead_story': True}) \
-                        .eq('heading', heading) \
-                        .execute()
-                    logger.info('Lead story set via heading fallback: "%s"', heading[:60])
-                else:
-                    logger.warning('Lead story: server_idx=%s matched nothing and no heading fallback', server_idx)
-            else:
-                logger.info('Lead story set: server_idx=%s', server_idx)
+            logger.info('Lead story set: id=%s server_idx=%s', matched_id, server_idx)
+        else:
+            logger.warning('Lead story: no article found for server_idx=%s', server_idx)
+            return JSONResponse({'status': 'error', 'message': 'Article not found in Global News — publish it first'}, status_code=404)
+
         return {'status': 'success'}
     except Exception as e:
         logger.error('set_lead_story error: %s', e)
