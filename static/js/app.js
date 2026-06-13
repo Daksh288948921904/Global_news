@@ -258,7 +258,7 @@ function cardHTML(a, i) {
       ${langBadge(a)}
       <span class="card-rt-badge">${rt(words)}</span>
     </div>
-    ${isHero ? `<span class="card-featured-label">Lead Story</span>` : ''}
+    ${a.is_lead_story ? `<span class="card-featured-label">Lead Story</span>` : ''}
     <div class="card-info">
       <div class="card-source-row">
         <span class="card-source-dot"></span>
