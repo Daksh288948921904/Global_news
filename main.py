@@ -191,10 +191,27 @@ async def ingest_article(request: Request):
             'server_idx':    int(body['server_idx']) if str(body.get('server_idx', '')).isdigit() else None,
             'is_lead_story': False,
         }
+        # Deduplicate: if server_idx already exists, update instead of insert
+        server_idx = article.get('server_idx')
+        existing_id = None
+        if server_idx is not None:
+            ex = supabase.table('published_articles').select('id').eq('server_idx', server_idx).limit(1).execute()
+            if ex.data:
+                existing_id = ex.data[0]['id']
+                # Delete any extra duplicates first (keep only the first)
+                all_dupes = supabase.table('published_articles').select('id').eq('server_idx', server_idx).execute()
+                for row in (all_dupes.data or [])[1:]:
+                    supabase.table('published_articles').delete().eq('id', row['id']).execute()
+                # Update the surviving record (preserve is_lead_story)
+                update_payload = {k: v for k, v in article.items() if k != 'is_lead_story'}
+                supabase.table('published_articles').update(update_payload).eq('id', existing_id).execute()
+                logger.info('Updated existing article "%s" id=%s', article['heading'][:60], existing_id)
+                return {'status': 'success', 'id': existing_id, 'action': 'updated'}
+
         resp = supabase.table('published_articles').insert(article).execute()
         new_id = resp.data[0]['id'] if resp.data else None
         logger.info('Ingested article "%s" id=%s', article['heading'][:60], new_id)
-        return {'status': 'success', 'id': new_id}
+        return {'status': 'success', 'id': new_id, 'action': 'inserted'}
     except Exception as e:
         logger.error('ingest_article error: %s', e)
         return JSONResponse({'status': 'error', 'message': str(e)}, status_code=500)
