@@ -274,7 +274,10 @@ function cardHTML(a, i) {
       <span class="card-rt-badge">${rt(words)}</span>
     </div>
     ${a.is_lead_story ? `<span class="card-featured-label">Lead Story</span>` : ''}
-    ${sub ? `<div class="card-hover-sub" style="background:linear-gradient(to top,${hexRgba(c1,.42)} 0%,${hexRgba(c1,.22)} 55%,transparent 100%);border-top:1px solid ${hexRgba(c1,.32)}">${esc(sub)}</div>` : ''}
+    <div class="card-hover-sub" style="background:linear-gradient(to top,${hexRgba(c1,.52)} 0%,${hexRgba(c1,.28)} 55%,transparent 100%);border-top:1px solid ${hexRgba(c1,.32)}">
+      ${!isHero ? `<div class="chsub-title">${esc(a.heading || '')}</div>` : ''}
+      ${sub ? `<div class="chsub-body">${esc(sub)}</div>` : ''}
+    </div>
     <div class="card-info">
       <div class="card-source-row">
         <span class="card-source-dot"></span>
@@ -283,7 +286,7 @@ function cardHTML(a, i) {
         <span class="card-date">${date}</span>
       </div>
       <h3 class="card-title">${esc(a.heading || 'Untitled')}</h3>
-      ${lede ? `<p class="card-lede">${esc(lede)}</p>` : ''}
+      ${isHero && lede ? `<p class="card-lede">${esc(lede)}</p>` : ''}
     </div>
   </article>`;
 }
