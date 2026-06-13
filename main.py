@@ -190,6 +190,7 @@ async def ingest_article(request: Request):
             'tags':         body.get('tags') or [],
             'server_idx':    int(body['server_idx']) if str(body.get('server_idx', '')).isdigit() else None,
             'is_lead_story': False,
+            'country':      str(body.get('country') or ''),
         }
         # Deduplicate: if server_idx already exists, update instead of insert
         server_idx = article.get('server_idx')
