@@ -3457,65 +3457,83 @@ body::before {
   transition:background .15s,border-color .15s;
 }
 .nc-run-btn:hover{background:rgba(99,102,241,.2);border-color:rgba(99,102,241,.6)}
-.nc-loading{display:flex;align-items:center;gap:8px;padding:12px 0;color:#6b7280;font-size:13px}
-.nc-spinner{width:14px;height:14px;border:2px solid rgba(99,102,241,.25);border-top-color:#818cf8;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.nc-loading{display:flex;align-items:center;gap:10px;padding:20px 0;color:#6b7280;font-size:13px}
+.nc-spinner{width:16px;height:16px;border:2px solid rgba(99,102,241,.2);border-top-color:#818cf8;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 .nc-error{color:#f87171;font-size:12px;padding:8px 0}
 
-/* Overall verdict banner */
-.nc-overall{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:11px 14px;border-radius:10px;margin-bottom:12px;
-  border:1px solid currentColor;
+/* ── News Verification — redesign ── */
+.ncv-hero{
+  display:flex;align-items:center;gap:20px;
+  padding:20px 18px;border-radius:16px;
+  border:1px solid;margin-bottom:12px;
+  position:relative;overflow:hidden;
 }
-.nc-overall-left{display:flex;flex-direction:column;gap:2px}
-.nc-overall-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.55}
-.nc-overall-value{font-size:14px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
-.nc-overall-score{
-  font-size:22px;font-weight:800;line-height:1;
-  opacity:.9;
+.ncv-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 120% at 0% 50%,currentColor,transparent 65%);
+  opacity:.1;pointer-events:none;
 }
-.nc-overall-score span{font-size:11px;font-weight:500;opacity:.5}
+.ncv-ring-wrap{position:relative;flex-shrink:0;width:88px;height:88px}
+.ncv-ring{width:88px;height:88px;transform:rotate(-90deg)}
+.ncv-ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:9}
+.ncv-ring-fill{
+  fill:none;stroke:currentColor;stroke-width:9;stroke-linecap:round;
+  stroke-dasharray:0 283;
+  transition:stroke-dasharray 1.3s cubic-bezier(.4,0,.2,1);
+  filter:drop-shadow(0 0 5px currentColor);
+}
+.ncv-score-inner{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  line-height:1;
+}
+.ncv-score-num{font-size:26px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums}
+.ncv-score-sub{font-size:10px;font-weight:600;color:rgba(255,255,255,.35);margin-top:2px}
+.ncv-verdict-info{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.ncv-verdict-label{font-size:9px;font-weight:800;letter-spacing:.2em;color:rgba(255,255,255,.38);text-transform:uppercase}
+.ncv-verdict-value{font-size:22px;font-weight:900;text-transform:uppercase;color:currentColor;line-height:1.1;letter-spacing:-.2px;text-shadow:0 0 24px currentColor}
+.ncv-verdict-reason{font-size:11.5px;line-height:1.5;color:rgba(255,255,255,.5);margin-top:2px}
 
-/* 2×2 card grid */
-.nc-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:8px;margin-bottom:10px;
+/* Metric tiles */
+.ncv-metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.ncv-metric{
+  border-radius:13px;border:1px solid;
+  padding:13px 13px 12px;
+  display:flex;flex-direction:column;gap:5px;
+  position:relative;overflow:hidden;
+  transition:box-shadow .2s,transform .2s;
 }
-.nc-card{
-  border-radius:10px;border:1px solid currentColor;
-  padding:10px 12px;display:flex;flex-direction:column;gap:5px;
+.ncv-metric::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:currentColor;opacity:.6;
 }
-.nc-card-header{
+.ncv-metric:hover{box-shadow:0 0 22px -6px currentColor;transform:translateY(-1px)}
+.ncv-metric-head{
   display:flex;align-items:center;gap:5px;
-  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  opacity:.6;
+  font-size:9px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;
+  color:currentColor;opacity:.65;
 }
-.nc-card-badge{
-  font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
-  line-height:1.2;
-}
-.nc-card-reason{
-  font-size:10.5px;line-height:1.45;
-  color:#6b7280;margin-top:2px;
-}
+.ncv-metric-val{font-size:13.5px;font-weight:900;text-transform:uppercase;color:currentColor;letter-spacing:.02em;line-height:1.2}
+.ncv-metric-txt{font-size:10.5px;line-height:1.5;color:rgba(255,255,255,.45);margin-top:1px}
 
-/* bottom extras */
-.nc-flags{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.nc-flags-label{font-size:10px;font-weight:700;color:#f87171;text-transform:uppercase;letter-spacing:.08em;width:100%}
-.nc-flag{font-size:11px;color:#f87171;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);padding:2px 8px;border-radius:20px}
-.nc-claims{margin-top:8px}
-.nc-claims-label{font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px}
-.nc-claims ul{margin:0;padding-left:16px;font-size:11px;color:#9ca3af;line-height:1.7}
-.nc-rerun-btn{margin-top:10px;font-size:11px;color:#6b7280;background:none;border:1px solid rgba(255,255,255,.08);padding:4px 10px;border-radius:6px;cursor:pointer}
-.nc-rerun-btn:hover{color:#d1d5db;border-color:rgba(255,255,255,.2)}
+/* Staggered entry animation */
+.ncv-metric:nth-child(1){animation:ncv-in .35s .04s var(--ease-out) both}
+.ncv-metric:nth-child(2){animation:ncv-in .35s .10s var(--ease-out) both}
+.ncv-metric:nth-child(3){animation:ncv-in .35s .16s var(--ease-out) both}
+.ncv-metric:nth-child(4){animation:ncv-in .35s .22s var(--ease-out) both}
+@keyframes ncv-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-/* Color tokens — apply to both .nc-overall and .nc-card */
-.nc-green{color:#34d399;border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.07)}
-.nc-yellow{color:#fbbf24;border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.07)}
-.nc-orange{color:#fb923c;border-color:rgba(251,146,60,.3);background:rgba(251,146,60,.07)}
-.nc-red{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.07)}
-.nc-blue{color:#60a5fa;border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.07)}
-.nc-gray{color:#9ca3af;border-color:rgba(156,163,175,.2);background:rgba(156,163,175,.05)}
+/* Red flags */
+.ncv-flags{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0 2px}
+.ncv-flag{font-size:11px;color:#f87171;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.22);padding:3px 10px;border-radius:20px}
+
+/* Color tokens */
+.nc-green{color:#34d399;border-color:rgba(52,211,153,.28);background:rgba(52,211,153,.06)}
+.nc-yellow{color:#fbbf24;border-color:rgba(251,191,36,.28);background:rgba(251,191,36,.06)}
+.nc-orange{color:#fb923c;border-color:rgba(251,146,60,.28);background:rgba(251,146,60,.06)}
+.nc-red{color:#f87171;border-color:rgba(248,113,113,.28);background:rgba(248,113,113,.06)}
+.nc-blue{color:#60a5fa;border-color:rgba(96,165,250,.28);background:rgba(96,165,250,.06)}
+.nc-gray{color:#9ca3af;border-color:rgba(156,163,175,.15);background:rgba(156,163,175,.04)}
 
 /* ── Article Chatbot ── */
 .article-chat-wrap{display:flex;flex-direction:column;gap:10px}

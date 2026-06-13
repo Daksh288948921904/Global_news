@@ -557,60 +557,73 @@ function renderNewsCheck(sec, c) {
   const fakeLabel  = (c.fake_check   || '').replace(/_/g, ' ').toUpperCase();
   const trendLabel = c.trending === 'trending' ? 'TRENDING' : 'NOT TRENDING';
   const toneLabel  = (c.tone || 'neutral').toUpperCase();
+  const score      = Math.max(0, Math.min(100, c.credibility_score || 0));
+  const arc        = (score / 100) * 283; // 2π×45 ≈ 283
 
   const redFlagsHtml = c.red_flags?.length
-    ? `<div class="nc-flags"><span class="nc-flags-label">⚠ Red flags</span>${c.red_flags.map(f => `<span class="nc-flag">${esc(f)}</span>`).join('')}</div>`
+    ? `<div class="ncv-flags">${c.red_flags.map(f => `<span class="ncv-flag">⚠ ${esc(f)}</span>`).join('')}</div>`
     : '';
 
   sec.innerHTML = `
-    <div class="nc-overall ${overallColor}">
-      <div class="nc-overall-left">
-        <span class="nc-overall-label">Overall Verdict</span>
-        <span class="nc-overall-value">${esc(c.overall)}</span>
-      </div>
-      <div class="nc-overall-score">${c.credibility_score}<span>/100</span></div>
-    </div>
-
-    <div class="nc-grid">
-      <div class="nc-card ${credColor}">
-        <div class="nc-card-header">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.3 2.6 2.9.4-2.1 2 .5 2.9L6 7.5 3.4 8.9l.5-2.9L1.8 4l2.9-.4L6 1z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
-          <span>Credibility</span>
+    <div class="ncv-hero ${overallColor}">
+      <div class="ncv-ring-wrap">
+        <svg class="ncv-ring" viewBox="0 0 100 100">
+          <circle class="ncv-ring-bg" cx="50" cy="50" r="45"/>
+          <circle class="ncv-ring-fill" cx="50" cy="50" r="45"/>
+        </svg>
+        <div class="ncv-score-inner">
+          <span class="ncv-score-num">${score}</span>
+          <span class="ncv-score-sub">/100</span>
         </div>
-        <div class="nc-card-badge">${credLabel}</div>
-        <div class="nc-card-reason">${esc(c.credibility_reason)}</div>
       </div>
-
-      <div class="nc-card ${fakeColor}">
-        <div class="nc-card-header">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/><path d="M6 3.5v3M6 8h.01" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <span>Authenticity</span>
-        </div>
-        <div class="nc-card-badge">${fakeLabel}</div>
-        <div class="nc-card-reason">${esc(c.fake_reason)}</div>
-      </div>
-
-      <div class="nc-card ${toneColor}">
-        <div class="nc-card-header">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 9c1-2 2-3 4-3s3 1 4 3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="4" cy="4.5" r="1" fill="currentColor"/><circle cx="8" cy="4.5" r="1" fill="currentColor"/></svg>
-          <span>Tone</span>
-        </div>
-        <div class="nc-card-badge">${toneLabel}</div>
-        <div class="nc-card-reason">${esc(c.tone_reason)}</div>
-      </div>
-
-      <div class="nc-card ${trendColor}">
-        <div class="nc-card-header">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 9l3-3 2.5 2L10 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Trending</span>
-        </div>
-        <div class="nc-card-badge">${trendLabel}</div>
-        <div class="nc-card-reason">${esc(c.trending_reason)}</div>
+      <div class="ncv-verdict-info">
+        <span class="ncv-verdict-label">OVERALL VERDICT</span>
+        <span class="ncv-verdict-value">${esc(c.overall)}</span>
+        <span class="ncv-verdict-reason">${esc(c.credibility_reason)}</span>
       </div>
     </div>
 
-    ${redFlagsHtml}
-    <button class="nc-rerun-btn" onclick="runNewsCheck()">Re-run</button>`;
+    <div class="ncv-metrics">
+      <div class="ncv-metric ${credColor}">
+        <div class="ncv-metric-head">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1l1.3 2.6 2.9.4-2.1 2 .5 2.9L6 7.5 3.4 8.9l.5-2.9L1.8 4l2.9-.4L6 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          CREDIBILITY
+        </div>
+        <div class="ncv-metric-val">${credLabel}</div>
+        <div class="ncv-metric-txt">${esc(c.credibility_reason)}</div>
+      </div>
+      <div class="ncv-metric ${fakeColor}">
+        <div class="ncv-metric-head">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M6 3.5v2.8M6 7.8h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          AUTHENTICITY
+        </div>
+        <div class="ncv-metric-val">${fakeLabel}</div>
+        <div class="ncv-metric-txt">${esc(c.fake_reason)}</div>
+      </div>
+      <div class="ncv-metric ${toneColor}">
+        <div class="ncv-metric-head">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 9c1-2 2-3 4-3s3 1 4 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="4" cy="4.5" r="1" fill="currentColor"/><circle cx="8" cy="4.5" r="1" fill="currentColor"/></svg>
+          TONE
+        </div>
+        <div class="ncv-metric-val">${toneLabel}</div>
+        <div class="ncv-metric-txt">${esc(c.tone_reason)}</div>
+      </div>
+      <div class="ncv-metric ${trendColor}">
+        <div class="ncv-metric-head">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M1 9l3-3 2.5 2L10 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          TRENDING
+        </div>
+        <div class="ncv-metric-val">${trendLabel}</div>
+        <div class="ncv-metric-txt">${esc(c.trending_reason)}</div>
+      </div>
+    </div>
+    ${redFlagsHtml}`;
+
+  // Animate score ring after paint
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const fill = sec.querySelector('.ncv-ring-fill');
+    if (fill) fill.style.strokeDasharray = `${arc} 283`;
+  }));
 }
 
 // ── Fetch articles ────────────────────────────────────────────
