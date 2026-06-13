@@ -795,11 +795,16 @@ a{color:inherit;text-decoration:none}
 }
 .card-featured-label{
   position:absolute;top:16px;left:50%;transform:translateX(-50%);
-  font-size:8px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  background:rgba(99,102,241,.8);color:#fff;
-  padding:3px 10px;border-radius:4px;
+  font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  background:rgba(234,179,8,.92);color:#1a1000;
+  padding:4px 14px;border-radius:20px;
   backdrop-filter:blur(10px);z-index:6;white-space:nowrap;
-  border:1px solid rgba(255,255,255,.15);
+  border:1px solid rgba(255,215,0,.4);
+  box-shadow:0 2px 12px rgba(234,179,8,.4);
+  display:inline-flex;align-items:center;gap:5px;
+}
+.card-featured-label::before{
+  content:'★';font-size:8px;
 }
 
 /* Info — bottom of card */

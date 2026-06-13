@@ -189,6 +189,14 @@ function applyFilters() {
   if      (SORT === 'new')  list = [...list].sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
   else if (SORT === 'old')  list = [...list].sort((a, b) => new Date(a.published_at || 0) - new Date(b.published_at || 0));
   else if (SORT === 'long') list = [...list].sort((a, b) => wc(b) - wc(a));
+
+  // Pin lead story to the top regardless of sort
+  const leadIdx = list.findIndex(a => a.is_lead_story);
+  if (leadIdx > 0) {
+    const [lead] = list.splice(leadIdx, 1);
+    list.unshift(lead);
+  }
+
   SHOWN = list;
   renderFeed();
 }
