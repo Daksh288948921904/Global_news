@@ -257,11 +257,23 @@ async def set_lead_story(request: Request):
             .neq('id', '00000000-0000-0000-0000-000000000000') \
             .execute()
         if server_idx is not None:
-            supabase.table('published_articles') \
+            result = supabase.table('published_articles') \
                 .update({'is_lead_story': True}) \
                 .eq('server_idx', int(server_idx)) \
                 .execute()
-            logger.info('Lead story set: server_idx=%s', server_idx)
+            # Fallback: match by heading if server_idx found nothing
+            if not (result.data):
+                heading = body.get('heading', '').strip()
+                if heading:
+                    supabase.table('published_articles') \
+                        .update({'is_lead_story': True}) \
+                        .eq('heading', heading) \
+                        .execute()
+                    logger.info('Lead story set via heading fallback: "%s"', heading[:60])
+                else:
+                    logger.warning('Lead story: server_idx=%s matched nothing and no heading fallback', server_idx)
+            else:
+                logger.info('Lead story set: server_idx=%s', server_idx)
         return {'status': 'success'}
     except Exception as e:
         logger.error('set_lead_story error: %s', e)

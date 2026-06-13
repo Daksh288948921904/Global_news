@@ -642,13 +642,22 @@ async function fetchLeadStory() {
   try {
     const data = await fetch('/api/lead-story').then(r => r.json());
     const a    = data.article;
-    const hero = $('lead-story-hero');
-    if (!hero) return;
-    if (!a) { hero.style.display = 'none'; LEAD_STORY_ARTICLE = null; LEAD_STORY_ARTICLE_ID = null; return; }
-    LEAD_STORY_ARTICLE    = a;
-    LEAD_STORY_ARTICLE_ID = a.id;
-    renderLeadStoryHero(a);
-  } catch(e) { /* silent — hero stays hidden */ }
+    LEAD_STORY_ARTICLE    = a || null;
+    LEAD_STORY_ARTICLE_ID = a ? a.id : null;
+
+    // Sync is_lead_story flags into ALL array and re-render feed if anything changed
+    let changed = false;
+    ALL.forEach(art => {
+      const should = !!(a && art.id === a.id);
+      if (!!art.is_lead_story !== should) { art.is_lead_story = should; changed = true; }
+    });
+    // If lead story isn't in ALL yet (just published), add it at the top
+    if (a && !ALL.find(art => art.id === a.id)) {
+      ALL.unshift(a);
+      changed = true;
+    }
+    if (changed) applyFilters();
+  } catch(e) { /* silent */ }
 }
 
 function renderLeadStoryHero(a) {
