@@ -588,8 +588,10 @@ a{color:inherit;text-decoration:none}
 
 .sbn-stories{
   display:flex;flex-direction:column;gap:5px;
+  flex:1;
   transition:opacity .25s,transform .25s;
 }
+.sbn-stories .sbn-card{flex:1}
 .sbn-stories.fading{opacity:0;transform:translateY(5px)}
 
 .sbn-dots{
