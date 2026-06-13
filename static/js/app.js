@@ -281,7 +281,7 @@ function cardHTML(a, i) {
     <div class="card-info">
       <div class="card-source-row">
         <span class="card-source-dot"></span>
-        <span class="card-source">${esc(a.source_name || 'Global News')}</span>
+        <span class="card-source">${esc(a.source_name || 'Global DNL')}</span>
         ${a.region ? `<span class="card-region">· ${esc(a.region)}</span>` : ''}
         <span class="card-date">${date}</span>
       </div>
@@ -304,7 +304,7 @@ function listCardHTML(a, i) {
   return `<div class="list-card" onclick="openReader('${esc(a.id)}')">
     ${thumb}
     <div class="list-main">
-      <div class="list-source">${esc(a.source_name || 'Global News')}${a.region ? ` <span style="color:var(--ink4);font-weight:400">· ${esc(a.region)}</span>` : ''}</div>
+      <div class="list-source">${esc(a.source_name || 'Global DNL')}${a.region ? ` <span style="color:var(--ink4);font-weight:400">· ${esc(a.region)}</span>` : ''}</div>
       <div class="list-title">${esc(a.heading || 'Untitled')}</div>
     </div>
     <div class="list-meta">
@@ -446,7 +446,7 @@ function openReader(articleId) {
   // Header
   $('rh-meta').innerHTML = `
     <span class="rh-cat ${cat.cls}">${cat.key}</span>
-    <span class="rh-source">${esc(a.source_name || 'Global News')}</span>
+    <span class="rh-source">${esc(a.source_name || 'Global DNL')}</span>
     <span class="rh-date">${relTime(a.published_at || a.created_at)} · ${words} words · ${rt(words)} read</span>
   `;
   const extLink = $('reader-ext');
