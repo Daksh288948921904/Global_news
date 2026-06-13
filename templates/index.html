@@ -39,17 +39,17 @@
 
     <div class="sidebar-divider"></div>
 
-    <div class="sidebar-section-label">Feed</div>
-    <ul class="nav-list" id="nav-list">
-      <li><button class="nav-btn active" data-cat="all"><span class="nav-btn-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg></span>All Stories<span class="nav-count" id="cnt-all">0</span></button></li>
-      <li><button class="nav-btn" data-cat="world"><span class="nav-btn-icon">🌐</span>World<span class="nav-count" id="cnt-world">0</span></button></li>
-      <li><button class="nav-btn" data-cat="politics"><span class="nav-btn-icon">🏛</span>Politics<span class="nav-count" id="cnt-politics">0</span></button></li>
-      <li><button class="nav-btn" data-cat="technology"><span class="nav-btn-icon">⚡</span>Technology<span class="nav-count" id="cnt-technology">0</span></button></li>
-      <li><button class="nav-btn" data-cat="business"><span class="nav-btn-icon">📈</span>Business<span class="nav-count" id="cnt-business">0</span></button></li>
-      <li><button class="nav-btn" data-cat="health"><span class="nav-btn-icon">🩺</span>Health<span class="nav-count" id="cnt-health">0</span></button></li>
-      <li><button class="nav-btn" data-cat="science"><span class="nav-btn-icon">🔬</span>Science<span class="nav-count" id="cnt-science">0</span></button></li>
-      <li><button class="nav-btn" data-cat="sports"><span class="nav-btn-icon">🏆</span>Sports<span class="nav-count" id="cnt-sports">0</span></button></li>
-    </ul>
+    <div class="sidebar-section-label sbn-label">
+      <span class="sbn-live-dot"></span>Breaking News
+    </div>
+    <div class="sidebar-bn" id="sidebar-bn">
+      <!-- Lead story card -->
+      <div class="sbn-lead-wrap hidden" id="sbn-lead"></div>
+      <!-- 3 rotating feed stories -->
+      <div class="sbn-stories" id="sbn-stories"></div>
+      <!-- Page dots -->
+      <div class="sbn-dots" id="sbn-dots"></div>
+    </div>
 
     <div class="sidebar-bottom">
       <div class="live-status">
@@ -115,14 +115,19 @@
       </div>
     </header>
 
-    <!-- Breaking news ticker (replaces countries bar) -->
-    <div class="ticker" id="ticker">
-      <div class="ticker-tag">BREAKING</div>
-      <div class="ticker-runway" id="ticker-runway">
-        <div class="ticker-content" id="ticker-content">
-          <span class="ticker-placeholder">Loading latest headlines…</span>
-        </div>
-      </div>
+    <!-- Category bar (moved from sidebar) -->
+    <div class="cat-bar" id="cat-bar">
+      <button class="catb active" data-cat="all">
+        <svg class="catb-icon" width="11" height="11" viewBox="0 0 11 11" fill="currentColor"><rect x="0" y="0" width="4.5" height="4.5" rx="1"/><rect x="6.5" y="0" width="4.5" height="4.5" rx="1"/><rect x="0" y="6.5" width="4.5" height="4.5" rx="1"/><rect x="6.5" y="6.5" width="4.5" height="4.5" rx="1"/></svg>
+        All<span class="catb-count" id="cnt-all">0</span>
+      </button>
+      <button class="catb" data-cat="world">🌐 World<span class="catb-count" id="cnt-world">0</span></button>
+      <button class="catb" data-cat="politics">🏛 Politics<span class="catb-count" id="cnt-politics">0</span></button>
+      <button class="catb" data-cat="technology">⚡ Tech<span class="catb-count" id="cnt-technology">0</span></button>
+      <button class="catb" data-cat="business">📈 Business<span class="catb-count" id="cnt-business">0</span></button>
+      <button class="catb" data-cat="health">🩺 Health<span class="catb-count" id="cnt-health">0</span></button>
+      <button class="catb" data-cat="science">🔬 Science<span class="catb-count" id="cnt-science">0</span></button>
+      <button class="catb" data-cat="sports">🏆 Sports<span class="catb-count" id="cnt-sports">0</span></button>
     </div>
 
     <!-- Feed area -->

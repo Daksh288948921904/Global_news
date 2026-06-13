@@ -318,7 +318,7 @@ function renderFeed() {
   const hdrDate  = $('feed-header-date');
   if (hdrCount) hdrCount.textContent = SHOWN.length ? `${SHOWN.length} stor${SHOWN.length === 1 ? 'y' : 'ies'}` : '';
   if (hdrTitle) {
-    const activeCat = document.querySelector('.nav-btn.active[data-cat]');
+    const activeCat = document.querySelector('#cat-bar .catb.active[data-cat]');
     const label = activeCat ? (activeCat.textContent.trim().replace(/\d+/g, '').trim() || 'All Stories') : 'All Stories';
     hdrTitle.textContent = label;
   }
@@ -345,6 +345,84 @@ function renderFeed() {
     listEl.innerHTML = SHOWN.map((a, i) => listCardHTML(a, i)).join('');
     listEl.querySelectorAll('.list-card').forEach((el, i) => stagger(el, i));
   }
+}
+
+// ── Sidebar Breaking News rotation ───────────────────────────
+let _sbnPage  = 0;
+let _sbnTimer = null;
+
+function renderSidebarBN() {
+  const leadEl    = $('sbn-lead');
+  const storiesEl = $('sbn-stories');
+  const dotsEl    = $('sbn-dots');
+  if (!storiesEl) return;
+
+  // Lead story card
+  if (LEAD_STORY_ARTICLE && leadEl) {
+    const a = LEAD_STORY_ARTICLE;
+    leadEl.classList.remove('hidden');
+    leadEl.innerHTML = `
+      <div class="sbn-card sbn-lead-card" onclick="openReader('${esc(a.id)}')">
+        <span class="sbn-badge">★ Lead Story</span>
+        ${a.image_url
+          ? `<img class="sbn-img" src="${esc(a.image_url)}" loading="lazy">`
+          : `<div class="sbn-img-ph">📰</div>`}
+        <div class="sbn-info">
+          <div class="sbn-title">${esc(a.heading || '')}</div>
+        </div>
+      </div>`;
+  } else if (leadEl) {
+    leadEl.classList.add('hidden');
+  }
+
+  // Rotating 3 stories (exclude lead)
+  const pool  = ALL.filter(a => !a.is_lead_story);
+  const pages = Math.max(1, Math.ceil(pool.length / 3));
+  const page  = _sbnPage % pages;
+  const slice = pool.slice(page * 3, page * 3 + 3);
+
+  storiesEl.innerHTML = slice.map(a => {
+    const cat = catOf(a);
+    return `<div class="sbn-card" onclick="openReader('${esc(a.id)}')">
+      ${a.image_url
+        ? `<img class="sbn-img" src="${esc(a.image_url)}" loading="lazy">`
+        : `<div class="sbn-img-ph">${CAT_ICONS[cat.key] || '📰'}</div>`}
+      <div class="sbn-info">
+        <span class="sbn-cat ${cat.cls}">${cat.key}</span>
+        <div class="sbn-title">${esc(a.heading || '')}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Dots
+  if (pages > 1) {
+    dotsEl.innerHTML = Array.from({length: Math.min(pages, 8)}, (_, i) =>
+      `<span class="sbn-dot${i === page ? ' active' : ''}" data-p="${i}"></span>`
+    ).join('');
+    dotsEl.querySelectorAll('.sbn-dot').forEach(d =>
+      d.addEventListener('click', () => { _sbnPage = +d.dataset.p; renderSidebarBN(); })
+    );
+  } else {
+    dotsEl.innerHTML = '';
+  }
+}
+
+function startSidebarBN() {
+  renderSidebarBN();
+  if (_sbnTimer) clearInterval(_sbnTimer);
+  _sbnTimer = setInterval(() => {
+    const storiesEl = $('sbn-stories');
+    if (!storiesEl) return;
+    const pool  = ALL.filter(a => !a.is_lead_story);
+    const pages = Math.max(1, Math.ceil(pool.length / 3));
+    if (pages <= 1) return;
+    storiesEl.classList.add('fading');
+    setTimeout(() => {
+      _sbnPage = (_sbnPage + 1) % pages;
+      renderSidebarBN();
+      storiesEl.classList.remove('fading');
+    }, 260);
+  }, 5000);
 }
 
 // ── Reader ────────────────────────────────────────────────────
@@ -555,6 +633,7 @@ async function loadArticles(quiet = false) {
       refreshMeta(ALL);
       buildTicker(ALL);
       applyFilters();
+      startSidebarBN();
       if (!quiet) toast('ok', `${ALL.length} stor${ALL.length === 1 ? 'y' : 'ies'} loaded`);
     } else {
       if (!quiet) toast('err', data.message || 'Failed to load');
@@ -603,19 +682,17 @@ refreshBtn.addEventListener('click', () => loadArticles(false));
 searchEl.addEventListener('input', e => { Q = e.target.value.trim(); applyFilters(); });
 sortEl.addEventListener('change', e => { SORT = e.target.value; applyFilters(); });
 
-$('nav-list').addEventListener('click', e => {
-  const btn = e.target.closest('.nav-btn'); if (!btn) return;
-  document.querySelectorAll('#nav-list .nav-btn').forEach(b => b.classList.remove('active'));
+$('cat-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.catb'); if (!btn) return;
+  document.querySelectorAll('#cat-bar .catb').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   CAT = btn.dataset.cat; COUNTRY = null;
-  $('cbar-inner')?.querySelectorAll('.cbar-chip').forEach(b => b.classList.toggle('active', b.dataset.country === ''));
   applyFilters();
-  if (window.innerWidth <= 900) closeSidebar();
 });
 
 // ── World country dropdown ────────────────────────────────────
 (function initWorldDropdown() {
-  const worldBtn = document.querySelector('.nav-btn[data-cat="world"]');
+  const worldBtn = document.querySelector('.catb[data-cat="world"]');
   if (!worldBtn) return;
 
   // Create floating panel attached to body
@@ -649,8 +726,8 @@ $('nav-list').addEventListener('click', e => {
         const val = btn.dataset.country;
         COUNTRY = COUNTRY === val ? null : val;
         // Switch to All Stories so country filter applies across categories
-        document.querySelectorAll('#nav-list .nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('[data-cat="all"]').classList.add('active');
+        document.querySelectorAll('#cat-bar .catb').forEach(b => b.classList.remove('active'));
+        document.querySelector('#cat-bar .catb[data-cat="all"]').classList.add('active');
         CAT = 'all';
         applyFilters();
         hidePanel();
@@ -734,7 +811,7 @@ async function fetchLeadStory() {
       ALL.unshift(a);
       changed = true;
     }
-    if (changed) applyFilters();
+    if (changed) { applyFilters(); renderSidebarBN(); }
   } catch(e) { /* silent */ }
 }
 
