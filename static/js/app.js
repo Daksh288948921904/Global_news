@@ -283,7 +283,7 @@ function cardHTML(a, i) {
         <span class="card-date">${date}</span>
       </div>
       <h3 class="card-title">${esc(a.heading || 'Untitled')}</h3>
-      ${isHero && lede ? `<p class="card-lede">${esc(lede)}</p>` : ''}
+      ${lede ? `<p class="card-lede">${esc(lede)}</p>` : ''}
     </div>
   </article>`;
 }
