@@ -90,25 +90,11 @@ a{color:inherit;text-decoration:none}
 }
 .brand{display:flex;align-items:center;gap:10px}
 .brand-logo{
-  width:34px;height:34px;border-radius:10px;
-  background:linear-gradient(135deg,#4f46e5,#818cf8,#a5b4fc);
+  width:36px;height:36px;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
-  box-shadow:0 0 20px rgba(99,102,241,.5),inset 0 1px 0 rgba(255,255,255,.25);
-  position:relative;overflow:hidden;
 }
-.brand-logo::after{
-  content:'';
-  position:absolute;top:-50%;left:-75%;
-  width:50%;height:200%;
-  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%);
-  animation:logo-shine 5s ease-in-out infinite;
-}
-@keyframes logo-shine{
-  0%,70%,100%{left:-75%}
-  40%{left:125%}
-}
-.brand-letters{font-size:13px;font-weight:800;letter-spacing:.03em;color:#fff}
+.brand-logo-img{width:36px;height:36px;object-fit:contain;display:block}
 .brand-text{display:flex;flex-direction:column;line-height:1.2}
 .brand-name{
   font-size:15px;font-weight:800;letter-spacing:-.3px;
@@ -2023,20 +2009,6 @@ a{color:inherit;text-decoration:none}
   margin:0 2px;flex-shrink:0;
 }
 
-/* Brand logo shimmer */
-.brand-logo{
-  position:relative;overflow:hidden;
-}
-.brand-logo::after{
-  content:'';position:absolute;top:-50%;left:-75%;
-  width:50%;height:200%;
-  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.18) 50%,transparent 60%);
-  animation:logo-shine 4s ease-in-out infinite;
-}
-@keyframes logo-shine{
-  0%,70%{left:-75%}
-  100%{left:125%}
-}
 
 /* Ticker tag pulse dot */
 .ticker-tag{
