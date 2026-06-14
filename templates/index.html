@@ -133,15 +133,18 @@
     <!-- Feed area -->
     <div class="feed-area" id="feed-area">
 
-      <!-- Feed header strip -->
+      <!-- Breaking news ticker -->
       <div class="feed-header" id="feed-header">
-        <div class="feed-header-left">
-          <span class="feed-header-title" id="feed-header-title">All Stories</span>
-          <span class="feed-header-count" id="feed-header-count"></span>
+        <div class="fh-label">
+          <span class="fh-dot"></span>BREAKING
         </div>
-        <div class="feed-header-right">
-          <span class="feed-header-date" id="feed-header-date"></span>
+        <div class="fh-track">
+          <div class="fh-inner" id="fh-ticker-inner"></div>
         </div>
+        <!-- keep hidden for JS compat -->
+        <span id="feed-header-title" style="display:none"></span>
+        <span id="feed-header-count" style="display:none"></span>
+        <span id="feed-header-date"  style="display:none"></span>
       </div>
 
       <!-- Lead Story Hero (hidden until a lead story is set) -->

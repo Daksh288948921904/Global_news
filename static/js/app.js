@@ -86,12 +86,27 @@ function hexRgba(hex, a) {
   return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
 }
 
-// ── Ticker ────────────────────────────────────────────────────
+// ── Ticker (legacy, no-op if element absent) ──────────────────
 function buildTicker(articles) {
   if (!articles.length || !tickerContent) return;
   const sep   = `<span class="ticker-sep">◆</span>`;
   const inner = articles.slice(0, 14).map(a => `<span>${esc(a.heading || '')}</span>`).join(sep);
   tickerContent.innerHTML = inner + sep + inner;
+}
+
+// ── Feed breaking-news ticker ─────────────────────────────────
+function buildFeedTicker(articles) {
+  const el = $('fh-ticker-inner');
+  if (!el || !articles.length) return;
+  const sep  = `<span class="fh-sep">◆</span>`;
+  const items = articles.map(a =>
+    `<span class="fh-item" onclick="openReader('${esc(a.id)}')">${esc(a.heading || '')}</span>`
+  ).join(sep);
+  // duplicate for seamless loop
+  el.innerHTML = items + sep + items;
+  // adjust speed: ~14px per char width average
+  const dur = Math.max(30, articles.length * 4);
+  el.style.animationDuration = dur + 's';
 }
 
 // ── Badges & stats ────────────────────────────────────────────
@@ -652,6 +667,7 @@ async function loadArticles(quiet = false) {
       ALL = data.articles || [];
       refreshMeta(ALL);
       buildTicker(ALL);
+      buildFeedTicker(ALL);
       applyFilters();
       startSidebarBN();
       if (!quiet) toast('ok', `${ALL.length} stor${ALL.length === 1 ? 'y' : 'ies'} loaded`);
