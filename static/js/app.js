@@ -379,23 +379,8 @@ function renderSidebarBN() {
   const dotsEl    = $('sbn-dots');
   if (!storiesEl) return;
 
-  // Lead story card
-  if (LEAD_STORY_ARTICLE && leadEl) {
-    const a = LEAD_STORY_ARTICLE;
-    leadEl.classList.remove('hidden');
-    leadEl.innerHTML = `
-      <div class="sbn-card sbn-lead-card" onclick="openReader('${esc(a.id)}')">
-        <span class="sbn-badge">★ Lead Story</span>
-        ${a.image_url
-          ? `<img class="sbn-img" src="${esc(a.image_url)}" loading="lazy">`
-          : `<div class="sbn-img-ph">📰</div>`}
-        <div class="sbn-info">
-          <div class="sbn-title">${esc(a.heading || '')}</div>
-        </div>
-      </div>`;
-  } else if (leadEl) {
-    leadEl.classList.add('hidden');
-  }
+  // Current lead story is shown in the main hero — hide it from sidebar
+  if (leadEl) leadEl.classList.add('hidden');
 
   // Rotating 3 stories — previous lead stories only, exclude current lead
   const pool  = ALL.filter(a => a.was_lead_story && !a.is_lead_story);
