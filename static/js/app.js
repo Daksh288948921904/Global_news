@@ -378,8 +378,8 @@ function renderSidebarBN() {
     leadEl.classList.add('hidden');
   }
 
-  // Rotating 3 stories (exclude lead)
-  const pool  = ALL.filter(a => !a.is_lead_story);
+  // Rotating 3 stories — previous lead stories only, exclude current lead
+  const pool  = ALL.filter(a => a.was_lead_story && !a.is_lead_story);
   const pages = Math.max(1, Math.ceil(pool.length / 3));
   const page  = _sbnPage % pages;
   const slice = pool.slice(page * 3, page * 3 + 3);
@@ -416,7 +416,7 @@ function startSidebarBN() {
   _sbnTimer = setInterval(() => {
     const storiesEl = $('sbn-stories');
     if (!storiesEl) return;
-    const pool  = ALL.filter(a => !a.is_lead_story);
+    const pool  = ALL.filter(a => a.was_lead_story && !a.is_lead_story);
     const pages = Math.max(1, Math.ceil(pool.length / 3));
     if (pages <= 1) return;
     storiesEl.classList.add('fading');
@@ -425,7 +425,7 @@ function startSidebarBN() {
       renderSidebarBN();
       storiesEl.classList.remove('fading');
     }, 260);
-  }, 5000);
+  }, 10000);
 }
 
 // ── Reader ────────────────────────────────────────────────────

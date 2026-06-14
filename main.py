@@ -188,9 +188,10 @@ async def ingest_article(request: Request):
             'hocalwire_id': body.get('hocalwire_id') or body.get('feed_id') or '',
             'word_count':   body.get('word_count') or len(story_text.split()),
             'tags':         body.get('tags') or [],
-            'server_idx':    int(body['server_idx']) if str(body.get('server_idx', '')).isdigit() else None,
-            'is_lead_story': False,
-            'country':      str(body.get('country') or ''),
+            'server_idx':     int(body['server_idx']) if str(body.get('server_idx', '')).isdigit() else None,
+            'is_lead_story':  False,
+            'was_lead_story': False,
+            'country':        str(body.get('country') or ''),
         }
         # Deduplicate: if server_idx already exists, update instead of insert
         server_idx = article.get('server_idx')
@@ -255,6 +256,12 @@ async def set_lead_story(request: Request):
         server_idx     = body.get('server_idx')
         heading        = (body.get('heading') or '').strip()
         global_news_id = (body.get('global_news_id') or '').strip()
+
+        # Mark current lead story as was_lead_story before demoting
+        supabase.table('published_articles') \
+            .update({'was_lead_story': True}) \
+            .eq('is_lead_story', True) \
+            .execute()
 
         # Clear all existing lead stories
         supabase.table('published_articles') \
