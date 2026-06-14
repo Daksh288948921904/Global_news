@@ -501,17 +501,13 @@ function openReader(articleId) {
   $('reader-raw').textContent = JSON.stringify(a, null, 2);
   $('reader-raw').classList.add('hidden');
 
-  // Auto-trigger news verification
-  const ncSec = $('news-check-section');
-  if (ncSec) ncSec.innerHTML = `<div class="nc-loading"><span class="nc-spinner"></span><span>Analysing article…</span></div>`;
+  renderRecommended(a);
 
   readerScroll.scrollTop = 0;
   readerProg.style.width = '0%';
   readerOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   READER_OPEN = true;
-
-  runNewsCheck();
 }
 
 function closeReader() {
@@ -528,14 +524,41 @@ readerScroll.addEventListener('scroll', () => {
   readerProg.style.width = Math.min(100, pct) + '%';
 }, { passive: true });
 
-// ── News Verification (rule-based backend) ────────────────────
-async function runNewsCheck() {
-  const id = CURRENT_ARTICLE_ID;
-  if (!id) return;
-  const sec = $('news-check-section');
+// ── Recommended Stories ───────────────────────────────────────
+function renderRecommended(article) {
+  const sec = $('rec-section');
   if (!sec) return;
 
-  sec.innerHTML = `<div class="nc-loading"><span class="nc-spinner"></span><span>Analysing article…</span></div>`;
+  const thisCat = catOf(article).key;
+  const sameCat = ALL.filter(a => a.id !== article.id && catOf(a).key === thisCat)
+    .sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at))
+    .slice(0, 4);
+
+  // If fewer than 2 in same category, fill from any category
+  const pool = sameCat.length >= 2 ? sameCat :
+    ALL.filter(a => a.id !== article.id)
+      .sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at))
+      .slice(0, 4);
+
+  if (!pool.length) { sec.innerHTML = '<p class="rec-empty">No related stories found.</p>'; return; }
+
+  sec.innerHTML = pool.map(a => {
+    const cat = catOf(a);
+    return `<div class="rec-card" onclick="openReader('${esc(a.id)}')">
+      ${a.image_url
+        ? `<div class="rec-img"><img src="${esc(a.image_url)}" loading="lazy"></div>`
+        : `<div class="rec-img rec-img-ph">${CAT_ICONS[cat.key] || '📰'}</div>`}
+      <div class="rec-info">
+        <span class="rec-cat ${cat.cls}">${cat.key}</span>
+        <div class="rec-title">${esc(a.heading || '')}</div>
+        <div class="rec-meta">${relTime(a.published_at || a.created_at)} · ${rt(wc(a))} read</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// kept for any legacy references — no longer called
+async function runNewsCheck() {
 
   try {
     const res  = await fetch(`/api/articles/${id}/news-check`, { method: 'POST' });
