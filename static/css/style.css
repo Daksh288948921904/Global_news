@@ -464,6 +464,46 @@ a{color:inherit;text-decoration:none}
   transform:scale(1.07);
 }
 
+/* ── Topbar live strip ───────────────────────────────────────── */
+.topbar-live-strip{
+  display:flex;align-items:center;gap:10px;
+  margin:0 auto;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:14px;
+  padding:6px 16px;
+  backdrop-filter:blur(12px);
+  position:relative;overflow:hidden;
+  flex-shrink:0;
+}
+.topbar-live-strip::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(99,102,241,.06) 0%,rgba(139,92,246,.04) 50%,rgba(59,130,246,.06) 100%);
+  pointer-events:none;
+}
+.tls-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);
+  border-radius:8px;padding:2px 8px;
+}
+.tls-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:#f87171;flex-shrink:0;
+  box-shadow:0 0 6px #ef4444;
+  animation:pulse 1.5s ease-in-out infinite;
+}
+.tls-live-label{
+  font-size:9px;font-weight:900;letter-spacing:.18em;color:#fca5a5;
+}
+.tls-stat{display:flex;align-items:center;gap:5px}
+.tls-lbl{font-size:9.5px;font-weight:500;color:rgba(160,165,200,.45);letter-spacing:.04em;text-transform:uppercase}
+.tls-num{font-size:12px;font-weight:800;color:rgba(220,225,255,.9);letter-spacing:.02em}
+.tls-cat{color:#a5b4fc}
+.tls-time{color:rgba(200,210,255,.6);font-size:11px;font-weight:600}
+.tls-divider{width:1px;height:16px;background:linear-gradient(180deg,transparent,rgba(255,255,255,.1),transparent);flex-shrink:0}
+
+@media(max-width:900px){.topbar-live-strip{display:none}}
+
 .topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
 .sort-wrap{
   display:flex;align-items:center;gap:6px;

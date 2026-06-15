@@ -129,6 +129,17 @@ function refreshMeta(articles) {
   bump('s-articles', articles.length);
   bump('s-updated', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   buildCountryList(articles);
+
+  // Populate topbar live strip
+  const tlsCount = $('tls-count');
+  const tlsCat   = $('tls-top-cat');
+  const tlsTime  = $('tls-updated');
+  if (tlsCount) tlsCount.textContent = articles.length;
+  if (tlsCat) {
+    const topCat = Object.entries(cnts).filter(([k]) => k !== 'all').sort((a,b) => b[1]-a[1])[0];
+    tlsCat.textContent = topCat ? topCat[0].charAt(0).toUpperCase() + topCat[0].slice(1) : '—';
+  }
+  if (tlsTime) tlsTime.textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 }
 
 function _extractCountry(a) {
