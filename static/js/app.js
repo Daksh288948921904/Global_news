@@ -286,7 +286,7 @@ function cardHTML(a, i) {
     <div class="card-badges">
       <span class="card-cat-badge ${cat.cls}">${cat.key === 'world' && (a.country || _extractCountry(a)) ? (a.country || _extractCountry(a)).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : cat.key}</span>
       ${langBadge(a)}
-      <span class="card-rt-badge">${rt(words)}</span>
+      <img class="card-logo-badge" src="/static/img/logo.svg" alt="G">
     </div>
     ${a.is_lead_story ? `<span class="card-featured-label">Lead Story</span>` : ''}
     <div class="card-hover-sub" style="background:linear-gradient(to top,${hexRgba(c1,.52)} 0%,${hexRgba(c1,.28)} 55%,transparent 100%);border-top:1px solid ${hexRgba(c1,.32)}">
@@ -301,6 +301,7 @@ function cardHTML(a, i) {
         ${a.region ? `<span class="card-region">· ${esc(a.region)}</span>` : ''}
         <span class="card-date">${date}</span>
       </div>
+      <div class="card-rt-line">${rt(words)} read</div>
       <h3 class="card-title">${esc(a.heading || 'Untitled')}</h3>
       ${isHero && lede ? `<p class="card-lede">${esc(lede)}</p>` : ''}
     </div>
