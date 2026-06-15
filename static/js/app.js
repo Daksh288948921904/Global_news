@@ -129,17 +129,7 @@ function refreshMeta(articles) {
   bump('s-articles', articles.length);
   bump('s-updated', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   buildCountryList(articles);
-
-  // Populate topbar live strip
-  const tlsCount = $('tls-count');
-  const tlsCat   = $('tls-top-cat');
-  const tlsTime  = $('tls-updated');
-  if (tlsCount) tlsCount.textContent = articles.length;
-  if (tlsCat) {
-    const topCat = Object.entries(cnts).filter(([k]) => k !== 'all').sort((a,b) => b[1]-a[1])[0];
-    tlsCat.textContent = topCat ? topCat[0].charAt(0).toUpperCase() + topCat[0].slice(1) : '—';
-  }
-  if (tlsTime) tlsTime.textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  buildTrendingChips(articles);
 }
 
 function _extractCountry(a) {
@@ -147,6 +137,49 @@ function _extractCountry(a) {
   if (!raw) return null;
   const parts = raw.split(',').map(p => p.trim()).filter(Boolean);
   return (parts.length > 1 ? parts[parts.length - 1] : parts[0]).toUpperCase();
+}
+
+function buildTrendingChips(articles) {
+  const wrap = $('tt-chips');
+  if (!wrap) return;
+
+  const stop = new Set(['the','and','for','with','that','this','from','have','been','will','they','their','into','over','after','amid','says','said','new','more','than','about','which','would','could','also','what','when','your','some','were','has','its','not','but','are','was','out','who','how','him','her','his','our','all','one','two','three','four','five','gets','set']);
+  const counts = {};
+  articles.forEach(a => {
+    (a.heading || '').toLowerCase()
+      .replace(/[^a-z\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 4 && !stop.has(w))
+      .forEach(w => { counts[w] = (counts[w] || 0) + 1; });
+  });
+
+  const top = Object.entries(counts)
+    .filter(([, n]) => n >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+
+  if (!top.length) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = top.map(([word, n]) => {
+    const label = word.charAt(0).toUpperCase() + word.slice(1);
+    return `<button class="tt-chip" onclick="searchTrend('${esc(word)}')">${label}<span class="tt-chip-count">${n}</span></button>`;
+  }).join('');
+}
+
+function searchTrend(word) {
+  const el = $('search');
+  if (!el) return;
+  // toggle off if already active
+  if (el.value.toLowerCase() === word.toLowerCase()) {
+    el.value = ''; Q = ''; applyFilters();
+    document.querySelectorAll('.tt-chip').forEach(c => c.classList.remove('active'));
+    return;
+  }
+  el.value = word;
+  Q = word; applyFilters();
+  document.querySelectorAll('.tt-chip').forEach(c =>
+    c.classList.toggle('active', c.textContent.toLowerCase().startsWith(word.toLowerCase()))
+  );
 }
 
 function buildCountryList(articles) {
