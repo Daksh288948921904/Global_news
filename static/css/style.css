@@ -902,25 +902,25 @@ a{color:inherit;text-decoration:none}
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
 }
 .card-featured-label{
-  position:absolute;top:0;left:0;right:0;
+  position:absolute;top:12px;left:50%;transform:translateX(-50%) translateY(-4px);
   z-index:6;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:9px 16px;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:6px 18px;
   background:linear-gradient(90deg,rgba(146,100,0,.97) 0%,rgba(234,179,8,.95) 50%,rgba(180,130,0,.97) 100%);
   color:#1a0e00;
   font-size:10.5px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;
   text-shadow:0 1px 3px rgba(255,255,255,.15);
-  border-bottom:1px solid rgba(255,210,0,.3);
-  box-shadow:0 4px 20px rgba(234,179,8,.3);
+  border-radius:6px;
+  border:1px solid rgba(255,210,0,.35);
+  box-shadow:0 4px 20px rgba(234,179,8,.35);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   white-space:nowrap;
   opacity:0;
-  transform:translateY(-4px);
   transition:opacity .25s ease,transform .25s ease;
 }
 .card:hover .card-featured-label{
   opacity:1;
-  transform:translateY(0);
+  transform:translateX(-50%) translateY(0);
 }
 .card-featured-label::before{
   content:'★';font-size:10px;opacity:.8;
