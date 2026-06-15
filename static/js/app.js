@@ -284,7 +284,7 @@ function cardHTML(a, i) {
   return `<article class="card${isHero ? ' card-hero' : ''}" data-cat="${cat.key}" onclick="openReader('${esc(a.id)}')">
     ${media}
     <div class="card-badges">
-      <span class="card-cat-badge ${cat.cls}">${cat.key}</span>
+      <span class="card-cat-badge ${cat.cls}">${cat.key === 'world' && (a.country || _extractCountry(a)) ? (a.country || _extractCountry(a)).toLowerCase().replace(/\b\w/g, c => c.toUpperCase()) : cat.key}</span>
       ${langBadge(a)}
       <span class="card-rt-badge">${rt(words)}</span>
     </div>
