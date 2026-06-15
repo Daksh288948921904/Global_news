@@ -129,7 +129,6 @@ function refreshMeta(articles) {
   bump('s-articles', articles.length);
   bump('s-updated', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   buildCountryList(articles);
-  buildSidebarLivePanel(cnts, articles.length);
 }
 
 function _extractCountry(a) {
@@ -184,35 +183,6 @@ function _extractCountry(a) {
   setInterval(rotate, 4000);
 })();
 
-function buildSidebarLivePanel(cnts, total) {
-  const countEl = $('sb-lp-count');
-  const barsEl  = $('sb-lp-bars');
-  if (countEl) countEl.textContent = total;
-  if (!barsEl) return;
-
-  const CAT_COLORS_BAR = {
-    world:'#3b82f6', politics:'#f59e0b', technology:'#8b5cf6',
-    business:'#10b981', sports:'#f97316', health:'#f43f5e',
-    science:'#06b6d4', news:'#6366f1',
-  };
-  const top = Object.entries(cnts)
-    .filter(([k]) => k !== 'all' && cnts[k] > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
-  const max = top[0]?.[1] || 1;
-
-  barsEl.innerHTML = top.map(([cat, n]) => {
-    const pct = Math.round((n / max) * 100);
-    const color = CAT_COLORS_BAR[cat] || '#6366f1';
-    return `<div class="sb-lp-bar-row">
-      <span class="sb-lp-bar-label">${cat}</span>
-      <div class="sb-lp-bar-track">
-        <div class="sb-lp-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${color},${color}99)"></div>
-      </div>
-      <span class="sb-lp-bar-n">${n}</span>
-    </div>`;
-  }).join('');
-}
 
 function buildCountryList(articles) {
   const wrap = $('cbar-inner');
