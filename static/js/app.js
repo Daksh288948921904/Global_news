@@ -331,9 +331,6 @@ function listCardHTML(a, i) {
 }
 
 function renderFeed() {
-  // Lead story hero only on the "All" home feed
-  const heroEl = $('lead-story-hero');
-  if (heroEl) heroEl.classList.toggle('hidden', CAT !== 'all' || !!Q || !!COUNTRY);
 
   const hdrCount = $('feed-header-count');
   const hdrTitle = $('feed-header-title');
