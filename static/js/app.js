@@ -292,6 +292,7 @@ function cardHTML(a, i) {
     <div class="card-hover-sub" style="background:linear-gradient(to top,${hexRgba(c1,.52)} 0%,${hexRgba(c1,.28)} 55%,transparent 100%);border-top:1px solid ${hexRgba(c1,.32)}">
       ${!isHero ? `<div class="chsub-title">${esc(a.heading || '')}</div>` : ''}
       ${sub ? `<div class="chsub-body">${esc(sub)}</div>` : ''}
+      ${(a.reporter || (Array.isArray(a.authors) ? a.authors[0] : a.authors)) ? `<div class="chsub-author">✍ ${esc(a.reporter || (Array.isArray(a.authors) ? a.authors[0] : a.authors))}</div>` : ''}
     </div>
     <div class="card-info">
       <div class="card-source-row">
