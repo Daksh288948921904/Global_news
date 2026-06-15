@@ -129,7 +129,6 @@ function refreshMeta(articles) {
   bump('s-articles', articles.length);
   bump('s-updated', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   buildCountryList(articles);
-  buildTopbarTicker(articles);
 }
 
 function _extractCountry(a) {
@@ -139,17 +138,50 @@ function _extractCountry(a) {
   return (parts.length > 1 ? parts[parts.length - 1] : parts[0]).toUpperCase();
 }
 
-function buildTopbarTicker(articles) {
-  const el = $('tbt-inner');
-  if (!el || !articles.length) return;
-  const sep = `<span class="tbt-sep">◆</span>`;
-  const items = articles.map(a =>
-    `<span class="tbt-item" onclick="openReader('${esc(a.id)}')">${esc(a.heading || '')}</span>`
-  ).join(sep);
-  el.innerHTML = items + sep + items;
-  const dur = Math.max(30, articles.length * 3.5);
-  el.style.animationDuration = dur + 's';
-}
+// ── World Clock ───────────────────────────────────────────────
+(function initWorldClock() {
+  const CITIES = [
+    { name: 'New York',   tz: 'America/New_York' },
+    { name: 'London',     tz: 'Europe/London' },
+    { name: 'Paris',      tz: 'Europe/Paris' },
+    { name: 'Dubai',      tz: 'Asia/Dubai' },
+    { name: 'Mumbai',     tz: 'Asia/Kolkata' },
+    { name: 'Singapore',  tz: 'Asia/Singapore' },
+    { name: 'Tokyo',      tz: 'Asia/Tokyo' },
+    { name: 'Sydney',     tz: 'Australia/Sydney' },
+    { name: 'Los Angeles',tz: 'America/Los_Angeles' },
+    { name: 'São Paulo',  tz: 'America/Sao_Paulo' },
+  ];
+  let idx = 0;
+  const slide   = $('wc-slide');
+  const cityEl  = $('wc-city');
+  const timeEl  = $('wc-time');
+  if (!slide || !cityEl || !timeEl) return;
+
+  function fmt(tz) {
+    return new Date().toLocaleTimeString('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+
+  function tick() { if (timeEl) timeEl.textContent = fmt(CITIES[idx].tz); }
+
+  function rotate() {
+    slide.classList.add('exit');
+    setTimeout(() => {
+      idx = (idx + 1) % CITIES.length;
+      cityEl.textContent = CITIES[idx].name;
+      timeEl.textContent = fmt(CITIES[idx].tz);
+      slide.classList.remove('exit');
+      slide.classList.add('enter');
+      requestAnimationFrame(() => requestAnimationFrame(() => slide.classList.remove('enter')));
+    }, 350);
+  }
+
+  // init
+  cityEl.textContent = CITIES[0].name;
+  timeEl.textContent = fmt(CITIES[0].tz);
+  setInterval(tick, 1000);
+  setInterval(rotate, 4000);
+})();
 
 function buildCountryList(articles) {
   const wrap = $('cbar-inner');
