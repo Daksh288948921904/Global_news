@@ -15,8 +15,17 @@ ALTER TABLE published_articles
 
 -- Lead story support
 ALTER TABLE published_articles
-  ADD COLUMN IF NOT EXISTS is_lead_story BOOLEAN DEFAULT FALSE,
-  ADD COLUMN IF NOT EXISTS server_idx    INTEGER;
+  ADD COLUMN IF NOT EXISTS is_lead_story  BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS was_lead_story BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS server_idx     INTEGER;
+
+-- Selected tweets from social scrape
+ALTER TABLE published_articles
+  ADD COLUMN IF NOT EXISTS selected_tweets JSONB DEFAULT '[]'::jsonb;
+
+-- Country for geo-filtering
+ALTER TABLE published_articles
+  ADD COLUMN IF NOT EXISTS country TEXT DEFAULT '';
 
 CREATE INDEX IF NOT EXISTS idx_published_articles_lead_story
   ON published_articles (is_lead_story)

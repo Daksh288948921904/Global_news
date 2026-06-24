@@ -543,6 +543,48 @@ function openReader(articleId) {
   }
   $('r-body').innerHTML = bodyHtml;
 
+  // Render selected tweets if present
+  const tweetsEl = $('r-tweets');
+  if (tweetsEl) {
+    const rawTweets = a.selected_tweets;
+    const tweets = Array.isArray(rawTweets) ? rawTweets : [];
+    if (tweets.length) {
+      const xSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
+      let cards = '';
+      for (const tw of tweets) {
+        const url    = esc(tw.post_url || '');
+        const author = esc(tw.username || tw.author || 'unknown');
+        const text   = esc(tw.text || '');
+        const likes  = Number(tw.likes || 0);
+        const reposts = Number(tw.reposts || 0);
+        const replies = Number(tw.replies || 0);
+        const statsHtml = (likes + reposts + replies > 0)
+          ? '<span class="r-tweet-stat">♥ ' + likes + '</span>'
+            + '<span class="r-tweet-stat">↺ ' + reposts + '</span>'
+            + (replies ? '<span class="r-tweet-stat">💬 ' + replies + '</span>' : '')
+          : '';
+        const viewLink = url ? '<a class="r-tweet-view" href="' + url + '" target="_blank" rel="noopener">View on X →</a>' : '';
+        cards += '<div class="r-tweet-card">'
+          + '<div class="r-tweet-inner">'
+          + '<div class="r-tweet-head">'
+          + '<a class="r-tweet-author" href="' + url + '" target="_blank" rel="noopener">@' + author + '</a>'
+          + '<span class="r-tweet-xlogo">' + xSvg + '</span>'
+          + '</div>'
+          + '<p class="r-tweet-body">' + text + '</p>'
+          + '<div class="r-tweet-foot">' + statsHtml + viewLink + '</div>'
+          + '</div></div>';
+      }
+      tweetsEl.innerHTML = '<div class="r-tweets-section">'
+        + '<div class="r-tweets-label">' + xSvg + ' Reactions on X</div>'
+        + '<div class="r-tweets-list">' + cards + '</div>'
+        + '</div>';
+      tweetsEl.style.display = '';
+    } else {
+      tweetsEl.innerHTML = '';
+      tweetsEl.style.display = 'none';
+    }
+  }
+
   $('reader-raw').textContent = JSON.stringify(a, null, 2);
   $('reader-raw').classList.add('hidden');
 

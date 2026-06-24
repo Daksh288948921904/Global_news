@@ -192,6 +192,7 @@ async def ingest_article(request: Request):
             'is_lead_story':  False,
             'was_lead_story': False,
             'country':        str(body.get('country') or ''),
+            'selected_tweets': body.get('selected_tweets') or [],
         }
         # Deduplicate: if server_idx already exists, update instead of insert
         server_idx = article.get('server_idx')
