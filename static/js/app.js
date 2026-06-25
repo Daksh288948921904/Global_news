@@ -543,40 +543,81 @@ function openReader(articleId) {
   }
   $('r-body').innerHTML = bodyHtml;
 
-  // Render selected tweets if present
+  // Render selected tweets — Twitter dark-mode embed style
   const tweetsEl = $('r-tweets');
   if (tweetsEl) {
-    const rawTweets = a.selected_tweets;
-    const tweets = Array.isArray(rawTweets) ? rawTweets : [];
+    const tweets = Array.isArray(a.selected_tweets) ? a.selected_tweets : [];
     if (tweets.length) {
-      const xSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
-      let cards = '';
-      for (const tw of tweets) {
-        const url    = esc(tw.post_url || '');
-        const author = esc(tw.username || tw.author || 'unknown');
-        const text   = esc(tw.text || '');
-        const likes  = Number(tw.likes || 0);
+      const xSvg20 = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
+      const xSvg14 = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
+      // Avatar bg colors keyed to first char
+      const avatarColors = ['#1d9bf0','#794bc4','#00ba7c','#ff7a00','#f91880','#ffd400','#0072b1'];
+
+      function tweetCard(tw) {
+        const url     = tw.post_url || '';
+        const handle  = tw.username || tw.author || 'unknown';
+        const name    = tw.displayName || tw.name || tw.authorName || handle;
+        const text    = tw.text || '';
+        const likes   = Number(tw.likes   || 0);
         const reposts = Number(tw.reposts || 0);
         const replies = Number(tw.replies || 0);
-        const statsHtml = (likes + reposts + replies > 0)
-          ? '<span class="r-tweet-stat">♥ ' + likes + '</span>'
-            + '<span class="r-tweet-stat">↺ ' + reposts + '</span>'
-            + (replies ? '<span class="r-tweet-stat">💬 ' + replies + '</span>' : '')
+        const pic     = tw.profilePicture || tw.profilePictureUrl || tw.authorProfileImage || '';
+        const dateStr = tw.date || tw.createdAt || tw.timestamp || '';
+
+        // Avatar: photo or colored initial
+        const initial = handle[0] ? handle[0].toUpperCase() : '?';
+        const avatarBg = avatarColors[handle.charCodeAt(0) % avatarColors.length];
+        const avatarHtml = pic
+          ? '<img src="' + esc(pic) + '" alt="" onerror="this.parentNode.textContent=\'' + initial + '\'">'
+          : initial;
+
+        // Format date
+        let datePart = '';
+        if (dateStr) {
+          try {
+            const d = new Date(dateStr);
+            datePart = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+          } catch(_) {}
+        }
+
+        // Stats
+        function fmt(n) { return n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n); }
+        const statsHtml = '<span class="r-tweet-stat">'
+            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+            + fmt(replies) + '</span>'
+          + '<span class="r-tweet-stat">'
+            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>'
+            + fmt(reposts) + '</span>'
+          + '<span class="r-tweet-stat">'
+            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
+            + fmt(likes) + '</span>'
+          + (datePart ? '<span class="r-tweet-date">' + datePart + '</span>' : '');
+
+        const viewLink = url
+          ? '<a class="r-tweet-viewlink" href="' + esc(url) + '" target="_blank" rel="noopener">View post on X</a>'
           : '';
-        const viewLink = url ? '<a class="r-tweet-view" href="' + url + '" target="_blank" rel="noopener">View on X →</a>' : '';
-        cards += '<div class="r-tweet-card">'
+
+        return '<div class="r-tweet-card">'
           + '<div class="r-tweet-inner">'
-          + '<div class="r-tweet-head">'
-          + '<a class="r-tweet-author" href="' + url + '" target="_blank" rel="noopener">@' + author + '</a>'
-          + '<span class="r-tweet-xlogo">' + xSvg + '</span>'
+          +   '<div class="r-tweet-head">'
+          +     '<div class="r-tweet-avatar" style="background:' + avatarBg + '">' + avatarHtml + '</div>'
+          +     '<div class="r-tweet-user">'
+          +       '<div class="r-tweet-name">' + esc(name) + '</div>'
+          +       '<div class="r-tweet-handle">@' + esc(handle) + '</div>'
+          +     '</div>'
+          +     '<span class="r-tweet-xbadge">' + xSvg20 + '</span>'
+          +   '</div>'
+          +   '<div class="r-tweet-body">' + esc(text) + '</div>'
+          +   '<div class="r-tweet-divider"></div>'
+          +   '<div class="r-tweet-foot">' + statsHtml + '</div>'
           + '</div>'
-          + '<p class="r-tweet-body">' + text + '</p>'
-          + '<div class="r-tweet-foot">' + statsHtml + viewLink + '</div>'
-          + '</div></div>';
+          + viewLink
+          + '</div>';
       }
+
       tweetsEl.innerHTML = '<div class="r-tweets-section">'
-        + '<div class="r-tweets-label">' + xSvg + ' Reactions on X</div>'
-        + '<div class="r-tweets-list">' + cards + '</div>'
+        + '<div class="r-tweets-label">' + xSvg14 + ' Posts on X</div>'
+        + '<div class="r-tweets-list">' + tweets.map(tweetCard).join('') + '</div>'
         + '</div>';
       tweetsEl.style.display = '';
     } else {
